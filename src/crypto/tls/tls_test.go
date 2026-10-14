@@ -2340,6 +2340,23 @@ func TestSupportedSignatureAlgorithmsMLDSAGating(t *testing.T) {
 	}
 }
 
+func TestClientHelloNoSignatureAlgorithmsCert(t *testing.T) {
+	for _, minVersion := range []uint16{VersionTLS12, VersionTLS13} {
+		config := testConfigClient()
+		config.MinVersion = minVersion
+		hello, _, _, err := Client(nil, config).makeClientHello()
+		if err != nil {
+			t.Fatal(err)
+		}
+		if hello.supportedSignatureAlgorithmsCert != nil {
+			t.Errorf("MinVersion %s: ClientHello has signature_algorithms_cert", VersionName(minVersion))
+		}
+		if !slices.Contains(hello.supportedSignatureAlgorithms, PKCS1WithSHA256) {
+			t.Errorf("MinVersion %s: signature_algorithms is missing PKCS1WithSHA256", VersionName(minVersion))
+		}
+	}
+}
+
 func TestHandshakeMLDSA(t *testing.T) {
 	for _, tt := range []struct {
 		name   string

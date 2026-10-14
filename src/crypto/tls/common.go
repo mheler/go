@@ -1839,6 +1839,13 @@ func isDisabledSignatureAlgorithm(version uint16, s SignatureScheme, isCert bool
 	return false
 }
 
+// clientHelloSignatureAlgorithms returns the algorithms to advertise in the
+// ClientHello. We don't send signature_algorithms_cert, so they also apply to
+// certificates, which can be signed with TLS 1.2 algorithms in TLS 1.3.
+func clientHelloSignatureAlgorithms(minVers, maxVers uint16) []SignatureScheme {
+	return supportedSignatureAlgorithms(min(minVers, VersionTLS12), maxVers)
+}
+
 // supportedSignatureAlgorithmsCert returns the supported algorithms for
 // signatures in certificates.
 func supportedSignatureAlgorithmsCert(minVers, maxVers uint16) []SignatureScheme {
